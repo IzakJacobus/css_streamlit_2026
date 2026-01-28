@@ -6,7 +6,7 @@ background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279
 
 st.set_page_config(page_title="Researcher Profile and STEM Data Explorer", layout="wide")
 
-def box(text: str, color="#f9fafb", text_color="#374151"):
+def box(text: str, text_color="#f9fafb", color="#374151"):
     st.markdown(
         f"""
         <div style="
