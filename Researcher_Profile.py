@@ -115,17 +115,22 @@ elif menu == "Learnership Program":
     """)
     
     # ── Load the three datasets ──────────────────────────────────────────────
-    try:
-        df_unorthodox = pd.read_csv("data/Left_Arm_Unorthodox.csv")
-        df_legspin    = pd.read_csv("data/Right_Spin.csv")
-        df_offspin    = pd.read_csv("data/Arm_Off_spin.csv")
-        
-        st.success("All three datasets loaded successfully!")
-        
-    except FileNotFoundError as e:
-        st.error(f"File not found: {e}")
-        st.info("Make sure the CSV files are in the 'data/' folder (or adjust the path in code).")
-        st.stop()   # Stop execution so rest doesn't crash
+try:
+    df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")      # ← no "data/"
+    df_legspin    = pd.read_csv("Leg_Spin.csv")                 # ← exact name from GitHub
+    df_offspin    = pd.read_csv("Right_Arm_Off_spin.csv")       # ← exact name from GitHub
+    
+    st.success("All three datasets loaded successfully!")
+    
+except FileNotFoundError as e:
+    st.error(f"File not found: {e.filename if hasattr(e, 'filename') else e}")
+    st.info("""
+    Troubleshooting tips:
+    - Files must be in the root of your GitHub repo (same level as app.py)
+    - File names are case-sensitive on Cloud
+    - Re-deploy after pushing changes
+    - Check exact names in your repo: Left_Arm_Unorthodox.csv, Leg_Spin.csv, Right_Arm_Off_spin.csv
+    """)
     
     # ── Show overview in tabs ────────────────────────────────────────────────
     tab1, tab2, tab3, tab4 = st.tabs([
