@@ -72,7 +72,7 @@ elif menu == "Internships":
     st.title("Internships")
     st.sidebar.header("Upload and Filter")
     
-    st.image("/home/izak/anaconda_projects/CSS/Streamlit Profile/IMG_2875.JPEG", 
+    st.image("IMG_2875.JPEG", 
          caption="FT reactor", 
          width=1000)
     
