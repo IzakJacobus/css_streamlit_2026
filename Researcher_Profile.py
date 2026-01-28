@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import streamlit as st
+import pandas as pd               # ← ADD THIS LINE
+import plotly.express as px       # ← ADD THIS too (for graphs)
 
 background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2000"  # Example: tech/science abstract (change this!)
 
