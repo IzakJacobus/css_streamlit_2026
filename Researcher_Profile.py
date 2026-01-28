@@ -67,35 +67,6 @@ if menu == "Researcher Profile":
         So far I have done some internships at Holland & Hausberger and a Learnership Program.\n
     """)
 
-elif menu == "Internships":
-    st.title("Internships")
-    st.sidebar.header("Upload and Filter")
-    
-    st.image("IMG_2875.JPEG", caption="FT reactor", width=1000)
-    
-    box(f"""
-        I spent two vacations with Holland & Hausberger doing various projects, of which
-        the biggest one was building and pressure testing the FT reactor seen in the image above.
-    """)
-    
-    page_bg_img = f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background-image: url("{background_image_url}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }}
-    [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0);
-    }}
-    [data-testid="stToolbar"] {{
-        right: 2rem;
-    }}
-    </style>
-    """
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
 elif menu == "Learnership Program":
     st.title("Learnership Program – Cricket Ball Spin Dynamics")
     
@@ -107,134 +78,137 @@ elif menu == "Learnership Program":
     - Right-arm finger spin / off-spin
     """)
     
-    # ── Load the three datasets ──────────────────────────────────────────────
     try:
         df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")
         df_legspin    = pd.read_csv("Leg_Spin.csv")
-        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")   # Note: filename has underscore, not capital S
+        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")
         
         st.success("All three spin datasets loaded successfully!")
         
-        # ── Deviation Plots Function (your matplotlib style → Plotly interactive) ──
-        def create_deviation_plot(df, title_suffix):
+        # ── Helper to create top-view deviation plot (deviation vs distance) ──
+        def create_top_view_plot(df, title_suffix):
             fig = go.Figure()
             
-            # Assuming columns like: 'x121', 'x111' for Run 1, 'x221', 'x211' for Run 2, etc.
-            # CHANGE THESE NAMES to match your actual column names!
+            # Individual runs (like your original)
             runs = [
-                ('x121', 'x111', 'blue',   'Run 1'),
-                ('x221', 'x211', 'green',  'Run 2'),
-                ('x321', 'x311', 'orange', 'Run 3')
+                ('x111', 'y111', 'blue',   'Run 1 seam 0°'),
+                ('x211', 'y211', 'green',  'Run 2 seam 0°'),
+                ('x311', 'y311', 'orange', 'Run 3 seam 0°'),
+                ('x112', 'y112', 'blue',   'Run 1 seam 30°'),
+                ('x212', 'y212', 'green',  'Run 2 seam 30°'),
+                ('x312', 'y312', 'orange', 'Run 3 seam 30°'),
+                ('x113', 'y113', 'blue',   'Run 1 seam 60°'),
+                ('x213', 'y213', 'green',  'Run 2 seam 60°'),
+                ('x313', 'y313', 'orange', 'Run 3 seam 60°'),
+                ('x114', 'y114', 'blue',   'Run 1 seam 90°'),
+                ('x214', 'y214', 'green',  'Run 2 seam 90°'),
+                ('x314', 'y314', 'orange', 'Run 3 seam 90°'),
             ]
             
             for x_col, y_col, color, label in runs:
                 if x_col in df.columns and y_col in df.columns:
                     fig.add_trace(go.Scatter(
-                        x=df[x_col],
-                        y=df[y_col],
+                        x=df[x_col], y=df[y_col],
                         mode='lines+markers',
                         line=dict(color=color),
                         name=label,
                         marker=dict(size=6)
                     ))
             
-            # Add zero lines
             fig.add_hline(y=0, line_width=2, line_color="black")
             fig.add_vline(x=0, line_width=2, line_color="black")
             
-            # Layout matching your original plot
             fig.update_layout(
                 title=f'Ball Deviation w.r.t. Cricket Pole (Top View) – {title_suffix}',
                 xaxis_title='Deviation from the cricket pole (m)',
                 yaxis_title='Distance traveled (m)',
                 xaxis_range=[-1, 1],
                 yaxis_range=[-21, 1],
+                yaxis_autorange="reversed",
                 showlegend=True,
-                yaxis_autorange="reversed",   # inverts y-axis like plt.gca().invert_yaxis()
-                height=500,
-                margin=dict(l=40, r=40, t=60, b=40)
+                xaxis_showgrid=True,
+                yaxis_showgrid=True,
+                height=500
             )
-            
             return fig
         
-        # ── Display the three deviation plots side-by-side ───────────────────────
-        st.subheader("Ball Deviation Plots (Top View)")
+        # ── Helper for average per seam angle (like your avg plot) ──
+        def create_average_seam_plot(df, title_suffix):
+            fig = go.Figure()
+            
+            # Averages per seam angle
+            seams = [
+                (['x121','x221','x321'], ['y121','y221','y321'], 'Seam 0°', 'blue'),
+                (['x122','x222','x322'], ['y122','y222','y322'], 'Seam 30°', 'green'),
+                (['x123','x223','x323'], ['y123','y223','y323'], 'Seam 60°', 'orange'),
+                (['x124','x224','x324'], ['y124','y224','y324'], 'Seam 90°', 'purple'),
+            ]
+            
+            for x_cols, y_cols, label, color in seams:
+                if all(c in df.columns for c in x_cols + y_cols):
+                    avg_x = df[x_cols].mean(axis=1)
+                    avg_y = df[y_cols].mean(axis=1)
+                    fig.add_trace(go.Scatter(
+                        x=avg_x, y=avg_y,
+                        mode='lines+markers',
+                        name=label,
+                        line=dict(color=color)
+                    ))
+            
+            fig.add_hline(y=0, line_width=2, line_color="black")
+            fig.add_vline(x=0, line_width=2, line_color="black")
+            
+            fig.update_layout(
+                title=f'Average Deviation per Seam Angle – {title_suffix}',
+                xaxis_title='Deviation from the cricket pole (m)',
+                yaxis_title='Distance traveled (m)',
+                xaxis_range=[-1, 1],
+                yaxis_range=[-21, 1],
+                yaxis_autorange="reversed",
+                showlegend=True,
+                xaxis_showgrid=True,
+                yaxis_showgrid=True,
+                height=500
+            )
+            return fig
         
-        col1, col2, col3 = st.columns(3)
+        # ── Display plots ─────────────────────────────────────────────────────
+        st.subheader("Deviation & Trajectory Plots")
         
-        with col1:
-            st.markdown("**Left-Arm Unorthodox**")
-            fig1 = create_deviation_plot(df_unorthodox, "Left-Arm Unorthodox")
-            st.plotly_chart(fig1, use_container_width=True)
+        # Average seam angle plots (one per dataset)
+        st.markdown("**Average Deviation per Seam Angle**")
+        cols_avg = st.columns(3)
+        with cols_avg[0]:
+            st.plotly_chart(create_average_seam_plot(df_unorthodox, "Left-Arm Unorthodox"), use_container_width=True)
+        with cols_avg[1]:
+            st.plotly_chart(create_average_seam_plot(df_legspin, "Leg-Spin"), use_container_width=True)
+        with cols_avg[2]:
+            st.plotly_chart(create_average_seam_plot(df_offspin, "Off-Spin"), use_container_width=True)
         
-        with col2:
-            st.markdown("**Leg-Spin**")
-            fig2 = create_deviation_plot(df_legspin, "Leg-Spin")
-            st.plotly_chart(fig2, use_container_width=True)
+        # Top view individual runs (one per dataset)
+        st.markdown("**Individual Runs – Top View (Deviation vs Distance)**")
+        cols_top = st.columns(3)
+        with cols_top[0]:
+            st.plotly_chart(create_top_view_plot(df_unorthodox, "Left-Arm Unorthodox"), use_container_width=True)
+        with cols_top[1]:
+            st.plotly_chart(create_top_view_plot(df_legspin, "Leg-Spin"), use_container_width=True)
+        with cols_top[2]:
+            st.plotly_chart(create_top_view_plot(df_offspin, "Off-Spin"), use_container_width=True)
         
-        with col3:
-            st.markdown("**Off-Spin**")
-            fig3 = create_deviation_plot(df_offspin, "Off-Spin")
-            st.plotly_chart(fig3, use_container_width=True)
-        
-        # Debug: show column names so you can adjust the run column names above
-        with st.expander("Debug: Column names in each dataset"):
-            st.write("Left-Arm Unorthodox:", df_unorthodox.columns.tolist())
+        # Debug columns
+        with st.expander("Debug: Column names"):
+            st.write("Unorthodox:", df_unorthodox.columns.tolist())
             st.write("Leg-Spin:", df_legspin.columns.tolist())
             st.write("Off-Spin:", df_offspin.columns.tolist())
     
     except Exception as e:
-        st.error(f"Error loading CSVs: {e}")
-        st.info("Current files in root directory:")
+        st.error(f"Error: {e}")
         import os
-        st.write(os.listdir('.'))
+        st.write("Files in root:", os.listdir('.'))
         st.stop()
-
-    # ── Existing tabs (Overview + RPM plots) ─────────────────────────────────
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "Overview",
-        "Left-Arm Unorthodox",
-        "Right-Arm Leg-Spin",
-        "Right-Arm Off-Spin"
-    ])
     
-    with tab1:
-        st.subheader("Quick Comparison")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Left-Arm Unorthodox", f"{len(df_unorthodox)} rows")
-        with col2:
-            st.metric("Right-Arm Leg-Spin", f"{len(df_legspin)} rows")
-        with col3:
-            st.metric("Right-Arm Off-Spin", f"{len(df_offspin)} rows")
-        st.markdown("Typical columns found (may vary): Time, RPM, Revs, Speed, Spin Axis, etc.")
-    
-    with tab2:
-        st.subheader("Left-Arm Unorthodox Spin")
-        st.dataframe(df_unorthodox.head(8), use_container_width=True)
-        if 'Time' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
-            fig = px.line(df_unorthodox, x='Time', y='RPM',
-                          title="Spin Rate (RPM) over Time – Left-Arm Unorthodox",
-                          markers=True)
-            st.plotly_chart(fig, use_container_width=True)
-    
-    with tab3:
-        st.subheader("Right-Arm Leg-Spin")
-        st.dataframe(df_legspin.head(8), use_container_width=True)
-        if 'Time' in df_legspin.columns and 'RPM' in df_legspin.columns:
-            fig = px.line(df_legspin, x='Time', y='RPM',
-                          title="Spin Rate (RPM) over Time – Leg-Spin",
-                          markers=True)
-            st.plotly_chart(fig, use_container_width=True)
-    
-    with tab4:
-        st.subheader("Right-Arm Off-Spin")
-        st.dataframe(df_offspin.head(8), use_container_width=True)
-        if 'Time' in df_offspin.columns and 'RPM' in df_offspin.columns:
-            fig = px.line(df_offspin, x='Time', y='RPM',
-                          title="Spin Rate (RPM) over Time – Off-Spin",
-                          markers=True)
-            st.plotly_chart(fig, use_container_width=True)
+    # Your existing tabs (RPM etc.) can stay below
+    # ...
 
 elif menu == "Contact":
     st.header("Contact Information")
