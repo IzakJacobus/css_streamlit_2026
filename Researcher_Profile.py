@@ -150,7 +150,6 @@ elif menu == "Learnership Program":
                 xaxis_range=[-1, 1],
                 yaxis_range=[-21, 1],
                 showlegend=True,
-                grid=True,
                 yaxis_autorange="reversed",   # inverts y-axis like plt.gca().invert_yaxis()
                 height=500,
                 margin=dict(l=40, r=40, t=60, b=40)
