@@ -110,99 +110,31 @@ elif menu == "Learnership Program":
     try:
         df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")
         df_legspin    = pd.read_csv("Leg_Spin.csv")
-        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")
+        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")  # Fixed filename to match repo (capital 'S')
         
         st.success("All three spin datasets loaded successfully!")
         
-        # ── Function to create top-view deviation plot ────────────────────────
-        def create_top_view_plot(df, title_suffix):
-            fig = go.Figure()
-            
-            # Seam groups: (deviation columns, distance columns, colors, labels)
-            seam_groups = [
-                # Seam 0°
-                (['x121', 'x221', 'x321'], ['x111', 'x211', 'x311'], 'Seam 0°'),
-                # Seam 30°
-                (['x122', 'x222', 'x322'], ['x112', 'x212', 'x312'], 'Seam 30°'),
-                # Seam 60°
-                (['x123', 'x223', 'x323'], ['x113', 'x213', 'x313'], 'Seam 60°'),
-                # Seam 90°
-                (['x124', 'x224', 'x324'], ['x114', 'x214', 'x314'], 'Seam 90°'),
-            ]
-            
-            colors = ['blue', 'green', 'orange']
-            
-            for (dev_cols, dist_cols, seam_label) in seam_groups:
-                for i, (dev_col, dist_col) in enumerate(zip(dev_cols, dist_cols)):
-                    if dev_col in df.columns and dist_col in df.columns:
-                        run_label = f'Run {i+1} {seam_label}'
-                        fig.add_trace(go.Scatter(
-                            x=df[dev_col],          # Deviation on x-axis
-                            y=df[dist_col],         # Distance on y-axis
-                            mode='lines+markers',
-                            line=dict(color=colors[i]),
-                            name=run_label,
-                            marker=dict(size=6)
-                        ))
-            
-            # Add zero lines (cricket pole reference)
-            fig.add_hline(y=0, line_width=2, line_color="black")
-            fig.add_vline(x=0, line_width=2, line_color="black")
-            
-            # Layout matching your original matplotlib top-view style
-            fig.update_layout(
-                title=f'Ball Deviation w.r.t. Cricket Pole (Top View) – {title_suffix}',
-                xaxis_title='Deviation from the cricket pole (m)',
-                yaxis_title='Distance traveled (m)',
-                xaxis=dict(
-                    range=[-0.5, 0.5],          # Zoomed to show small deviations clearly
-                    dtick=0.1,
-                    showgrid=True,
-                    gridcolor='lightgray'
-                ),
-                yaxis=dict(
-                    range=[-21, 1],
-                    dtick=5,
-                    autorange="reversed",       # Inverts y-axis (bowl → batsman direction)
-                    showgrid=True,
-                    gridcolor='lightgray'
-                ),
-                showlegend=True,
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                height=600,
-                margin=dict(l=60, r=40, t=80, b=60)
-            )
-            
-            return fig
-        
-        # ── Display the top-view plots ────────────────────────────────────────
-        st.subheader("Ball Deviation Plots (Top View – Individual Runs per Seam Angle)")
+        # ── Display pre-generated top-view deviation PNG images ───────────────
+        st.subheader("Ball Deviation Plots (Top View – Pre-generated)")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
             st.markdown("**Left-Arm Unorthodox**")
-            fig_unorthodox = create_top_view_plot(df_unorthodox, "Left-Arm Unorthodox")
-            st.plotly_chart(fig_unorthodox, use_container_width=True)
+            st.image("Left_Arm_Unorthodox.png", use_column_width=True)
         
         with col2:
             st.markdown("**Leg-Spin**")
-            fig_legspin = create_top_view_plot(df_legspin, "Leg-Spin")
-            st.plotly_chart(fig_legspin, use_container_width=True)
+            st.image("Leg_Spin.png", use_column_width=True)
         
         with col3:
             st.markdown("**Off-Spin**")
-            fig_offspin = create_top_view_plot(df_offspin, "Off-Spin")
-            st.plotly_chart(fig_offspin, use_container_width=True)
+            st.image("Right_Arm_Off_Spin.png", use_column_width=True)
         
-        # Debug: show actual columns so you can confirm names
-        with st.expander("Debug: Column names (click to expand)"):
-            st.write("Left-Arm Unorthodox:", df_unorthodox.columns.tolist())
-            st.write("Leg-Spin:", df_legspin.columns.tolist())
-            st.write("Off-Spin:", df_offspin.columns.tolist())
+        st.info("These are pre-generated plots from the analysis (matplotlib). Hover/zoom for details.")
     
     except Exception as e:
-        st.error(f"Error loading or processing CSVs: {e}")
+        st.error(f"Error loading CSVs: {e}")
         st.info("Current files in root directory:")
         import os
         st.write(os.listdir('.'))
