@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import streamlit as st
-import pandas as pd               # ← ADD THIS LINE
-import plotly.express as px       # ← ADD THIS too (for graphs)
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go   # ← Added for more control over lines & layout
 
-background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2000"  # Example: tech/science abstract (change this!)
+background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2000"
 
 st.set_page_config(page_title="Researcher Profile and STEM Data Explorer", layout="wide")
 
@@ -16,7 +16,7 @@ def box(text: str, text_color="#f9fafb", color="#374151"):
             background-color: {color};
             padding: 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);   /* soft shadow – optional */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin: 1.5rem auto;
             max-width: 900px;
         ">
@@ -24,8 +24,9 @@ def box(text: str, text_color="#f9fafb", color="#374151"):
         </div>
         """,
         unsafe_allow_html=True
-        )
-#Sidebar for navigation
+    )
+
+# Sidebar for navigation
 st.sidebar.title("Navigation")
 menu = st.sidebar.radio(
     "Go to:",
@@ -36,111 +37,168 @@ menu = st.sidebar.radio(
 if menu == "Researcher Profile":
     st.title("Researcher Profile")
     st.sidebar.header("Profile Options")
-
+    
     page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
-        background-size: cover;          /* or contain / 100% 100% */
-        background-position: center;     /* centers the image */
+        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
-        }}
+    }}
     [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
-        }}
+        background: rgba(0,0,0,0);
+    }}
     [data-testid="stToolbar"] {{
-        right: 2rem;                     /* Optional: moves menu button if it overlaps */
-        }}
+        right: 2rem;
+    }}
     </style>
     """
-
-    st.markdown(page_bg_img, unsafe_allow_html=True)    
-
-    # Collect basic information
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+    
     box(f"""
         Name: Izak van der Walt\n
         Field: Space Physics\n
-        Instetution: North-West University\n
-        """)
-
-    # Display basic profile information
+        Institution: North-West University\n
+    """)
+    
     box(f"""
         I am currently a Honours Student that strives to do space research.\n
         So far I have done some internships at Holland & Hausberger and a Learnership Program.\n
-        """)
-    
+    """)
 
 elif menu == "Internships":
     st.title("Internships")
     st.sidebar.header("Upload and Filter")
     
-    st.image("IMG_2875.JPEG", 
-         caption="FT reactor", 
-         width=1000)
+    st.image("IMG_2875.JPEG", caption="FT reactor", width=1000)
     
-    box(
-        f"""
-        I spent two vacations with Holland & Hausberger doing various projects, of which 
+    box(f"""
+        I spent two vacations with Holland & Hausberger doing various projects, of which
         the biggest one was building and pressure testing the FT reactor seen in the image above.
-        
-        """
-        )
-
+    """)
+    
     page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
-        background-size: cover;          /* or contain / 100% 100% */
-        background-position: center;     /* centers the image */
+        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
-        }}
+    }}
     [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
-        }}
+        background: rgba(0,0,0,0);
+    }}
     [data-testid="stToolbar"] {{
-        right: 2rem;                     /* Optional: moves menu button if it overlaps */
-        }}
+        right: 2rem;
+    }}
     </style>
     """
-
-    st.markdown(page_bg_img, unsafe_allow_html=True) 
+    st.markdown(page_bg_img, unsafe_allow_html=True)
 
 elif menu == "Learnership Program":
     st.title("Learnership Program – Cricket Ball Spin Dynamics")
-   
+    
     st.markdown("""
-    In 2025 I participated in a project investigating the **dynamic spin behaviour** of a cricket ball.
+    In 2025 I participated in a project investigating the **dynamic spin behaviour** of a cricket ball.  
     We analysed three main delivery types:
     - Left-arm unorthodox (e.g. chinaman / googly style)
     - Right-arm wrist spin / leg-spin
     - Right-arm finger spin / off-spin
     """)
-   
+    
     # ── Load the three datasets ──────────────────────────────────────────────
     try:
-        df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")  # exact name from GitHub
+        df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")
         df_legspin    = pd.read_csv("Leg_Spin.csv")
-        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")
-    
+        df_offspin    = pd.read_csv("Right_Arm_Off_spin.csv")   # Note: filename has underscore, not capital S
+        
         st.success("All three spin datasets loaded successfully!")
+        
+        # ── Deviation Plots Function (your matplotlib style → Plotly interactive) ──
+        def create_deviation_plot(df, title_suffix):
+            fig = go.Figure()
+            
+            # Assuming columns like: 'x121', 'x111' for Run 1, 'x221', 'x211' for Run 2, etc.
+            # CHANGE THESE NAMES to match your actual column names!
+            runs = [
+                ('x121', 'x111', 'blue',   'Run 1'),
+                ('x221', 'x211', 'green',  'Run 2'),
+                ('x321', 'x311', 'orange', 'Run 3')
+            ]
+            
+            for x_col, y_col, color, label in runs:
+                if x_col in df.columns and y_col in df.columns:
+                    fig.add_trace(go.Scatter(
+                        x=df[x_col],
+                        y=df[y_col],
+                        mode='lines+markers',
+                        line=dict(color=color),
+                        name=label,
+                        marker=dict(size=6)
+                    ))
+            
+            # Add zero lines
+            fig.add_hline(y=0, line_width=2, line_color="black")
+            fig.add_vline(x=0, line_width=2, line_color="black")
+            
+            # Layout matching your original plot
+            fig.update_layout(
+                title=f'Ball Deviation w.r.t. Cricket Pole (Top View) – {title_suffix}',
+                xaxis_title='Deviation from the cricket pole (m)',
+                yaxis_title='Distance traveled (m)',
+                xaxis_range=[-1, 1],
+                yaxis_range=[-21, 1],
+                showlegend=True,
+                grid=True,
+                yaxis_autorange="reversed",   # inverts y-axis like plt.gca().invert_yaxis()
+                height=500,
+                margin=dict(l=40, r=40, t=60, b=40)
+            )
+            
+            return fig
+        
+        # ── Display the three deviation plots side-by-side ───────────────────────
+        st.subheader("Ball Deviation Plots (Top View)")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("**Left-Arm Unorthodox**")
+            fig1 = create_deviation_plot(df_unorthodox, "Left-Arm Unorthodox")
+            st.plotly_chart(fig1, use_container_width=True)
+        
+        with col2:
+            st.markdown("**Leg-Spin**")
+            fig2 = create_deviation_plot(df_legspin, "Leg-Spin")
+            st.plotly_chart(fig2, use_container_width=True)
+        
+        with col3:
+            st.markdown("**Off-Spin**")
+            fig3 = create_deviation_plot(df_offspin, "Off-Spin")
+            st.plotly_chart(fig3, use_container_width=True)
+        
+        # Debug: show column names so you can adjust the run column names above
+        with st.expander("Debug: Column names in each dataset"):
+            st.write("Left-Arm Unorthodox:", df_unorthodox.columns.tolist())
+            st.write("Leg-Spin:", df_legspin.columns.tolist())
+            st.write("Off-Spin:", df_offspin.columns.tolist())
     
-    except Exception as e:  # catch broader errors for better debug
+    except Exception as e:
         st.error(f"Error loading CSVs: {e}")
         st.info("Current files in root directory:")
         import os
         st.write(os.listdir('.'))
-        # Optional: stop early if loading fails, so tabs don't crash
         st.stop()
 
-    # ── Show overview in tabs ────────────────────────────────────────────────
-    # (Everything below must be indented under the elif, after the try/except)
+    # ── Existing tabs (Overview + RPM plots) ─────────────────────────────────
     tab1, tab2, tab3, tab4 = st.tabs([
         "Overview",
         "Left-Arm Unorthodox",
         "Right-Arm Leg-Spin",
         "Right-Arm Off-Spin"
     ])
-   
+    
     with tab1:
         st.subheader("Quick Comparison")
         col1, col2, col3 = st.columns(3)
@@ -150,38 +208,29 @@ elif menu == "Learnership Program":
             st.metric("Right-Arm Leg-Spin", f"{len(df_legspin)} rows")
         with col3:
             st.metric("Right-Arm Off-Spin", f"{len(df_offspin)} rows")
-       
         st.markdown("Typical columns found (may vary): Time, RPM, Revs, Speed, Spin Axis, etc.")
-   
+    
     with tab2:
         st.subheader("Left-Arm Unorthodox Spin")
         st.dataframe(df_unorthodox.head(8), use_container_width=True)
-       
         if 'Time' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
             fig = px.line(df_unorthodox, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Left-Arm Unorthodox",
                           markers=True)
             st.plotly_chart(fig, use_container_width=True)
-       
-        if 'Speed' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
-            fig_scatter = px.scatter(df_unorthodox, x='Speed', y='RPM',
-                                     title="Spin vs Speed – Left-Arm Unorthodox")
-            st.plotly_chart(fig_scatter, use_container_width=True)
-   
+    
     with tab3:
         st.subheader("Right-Arm Leg-Spin")
         st.dataframe(df_legspin.head(8), use_container_width=True)
-       
         if 'Time' in df_legspin.columns and 'RPM' in df_legspin.columns:
             fig = px.line(df_legspin, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Leg-Spin",
                           markers=True)
             st.plotly_chart(fig, use_container_width=True)
-   
+    
     with tab4:
         st.subheader("Right-Arm Off-Spin")
         st.dataframe(df_offspin.head(8), use_container_width=True)
-       
         if 'Time' in df_offspin.columns and 'RPM' in df_offspin.columns:
             fig = px.line(df_offspin, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Off-Spin",
@@ -189,26 +238,24 @@ elif menu == "Learnership Program":
             st.plotly_chart(fig, use_container_width=True)
 
 elif menu == "Contact":
-    # Add a contact section
     st.header("Contact Information")
     email = "izakjacobus@gmail.com"
     st.write(f"You can reach me at {email}.")
-
+    
     page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
-        background-size: cover;          /* or contain / 100% 100% */
-        background-position: center;     /* centers the image */
+        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
-        }}
+    }}
     [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
-        }}
+        background: rgba(0,0,0,0);
+    }}
     [data-testid="stToolbar"] {{
-        right: 2rem;                     /* Optional: moves menu button if it overlaps */
-        }}
+        right: 2rem;
+    }}
     </style>
     """
-
-    st.markdown(page_bg_img, unsafe_allow_html=True) 
+    st.markdown(page_bg_img, unsafe_allow_html=True)
