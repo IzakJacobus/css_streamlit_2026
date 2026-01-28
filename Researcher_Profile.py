@@ -2,6 +2,8 @@
 
 import streamlit as st
 
+background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2000"  # Example: tech/science abstract (change this!)
+
 st.set_page_config(page_title="Researcher Profile and STEM Data Explorer", layout="wide")
 
 def box(text: str, color="#f9fafb", text_color="#374151"):
@@ -32,8 +34,6 @@ menu = st.sidebar.radio(
 if menu == "Researcher Profile":
     st.title("Researcher Profile")
     st.sidebar.header("Profile Options")
-
-    background_image_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2000"  # Example: tech/science abstract (change this!)
 
     page_bg_img = f"""
     <style>
@@ -84,6 +84,25 @@ elif menu == "Internships":
         """
         )
 
+            page_bg_img = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("{background_image_url}");
+        background-size: cover;          /* or contain / 100% 100% */
+        background-position: center;     /* centers the image */
+        background-repeat: no-repeat;
+        }}
+    [data-testid="stHeader"] {{
+        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
+        }}
+    [data-testid="stToolbar"] {{
+        right: 2rem;                     /* Optional: moves menu button if it overlaps */
+        }}
+    </style>
+    """
+
+    st.markdown(page_bg_img, unsafe_allow_html=True) 
+
 elif menu == "Learnership Program":
     st.title("Learnership Program")
     st.sidebar.header("Data Selection")
@@ -95,11 +114,49 @@ elif menu == "Learnership Program":
         """
         )
 
+            page_bg_img = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("{background_image_url}");
+        background-size: cover;          /* or contain / 100% 100% */
+        background-position: center;     /* centers the image */
+        background-repeat: no-repeat;
+        }}
+    [data-testid="stHeader"] {{
+        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
+        }}
+    [data-testid="stToolbar"] {{
+        right: 2rem;                     /* Optional: moves menu button if it overlaps */
+        }}
+    </style>
+    """
+
+    st.markdown(page_bg_img, unsafe_allow_html=True) 
+
 elif menu == "Contact":
     # Add a contact section
     st.header("Contact Information")
     email = "izakjacobus@gmail.com"
     st.write(f"You can reach me at {email}.")
+
+        page_bg_img = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("{background_image_url}");
+        background-size: cover;          /* or contain / 100% 100% */
+        background-position: center;     /* centers the image */
+        background-repeat: no-repeat;
+        }}
+    [data-testid="stHeader"] {{
+        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
+        }}
+    [data-testid="stToolbar"] {{
+        right: 2rem;                     /* Optional: moves menu button if it overlaps */
+        }}
+    </style>
+    """
+
+    st.markdown(page_bg_img, unsafe_allow_html=True) 
 
 
 
