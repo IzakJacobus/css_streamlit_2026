@@ -107,37 +107,40 @@ elif menu == "Internships":
 
 elif menu == "Learnership Program":
     st.title("Learnership Program – Cricket Ball Spin Dynamics")
-    
+   
     st.markdown("""
-    In 2025 I participated in a project investigating the **dynamic spin behaviour** of a cricket ball.  
+    In 2025 I participated in a project investigating the **dynamic spin behaviour** of a cricket ball.
     We analysed three main delivery types:
     - Left-arm unorthodox (e.g. chinaman / googly style)
     - Right-arm wrist spin / leg-spin
     - Right-arm finger spin / off-spin
     """)
-    
+   
     # ── Load the three datasets ──────────────────────────────────────────────
-try:
-    df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")     # exact name from GitHub
-    df_legspin    = pd.read_csv("Leg_Spin.csv")
-    df_offspin    = pd.read_csv("Right_Arm_Off_spin.csv")
+    try:
+        df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")  # exact name from GitHub
+        df_legspin    = pd.read_csv("Leg_Spin.csv")
+        df_offspin    = pd.read_csv("Right_Arm_Off_spin.csv")
     
-    st.success("All three spin datasets loaded successfully!")
+        st.success("All three spin datasets loaded successfully!")
     
-except Exception as e:  # catch broader errors for better debug
-    st.error(f"Error loading CSVs: {e}")
-    st.info("Current files in root directory:")
-    import os
-    st.write(os.listdir('.'))
-    
+    except Exception as e:  # catch broader errors for better debug
+        st.error(f"Error loading CSVs: {e}")
+        st.info("Current files in root directory:")
+        import os
+        st.write(os.listdir('.'))
+        # Optional: stop early if loading fails, so tabs don't crash
+        st.stop()
+
     # ── Show overview in tabs ────────────────────────────────────────────────
+    # (Everything below must be indented under the elif, after the try/except)
     tab1, tab2, tab3, tab4 = st.tabs([
-        "Overview", 
-        "Left-Arm Unorthodox", 
-        "Right-Arm Leg-Spin", 
+        "Overview",
+        "Left-Arm Unorthodox",
+        "Right-Arm Leg-Spin",
         "Right-Arm Off-Spin"
     ])
-    
+   
     with tab1:
         st.subheader("Quick Comparison")
         col1, col2, col3 = st.columns(3)
@@ -147,42 +150,38 @@ except Exception as e:  # catch broader errors for better debug
             st.metric("Right-Arm Leg-Spin", f"{len(df_legspin)} rows")
         with col3:
             st.metric("Right-Arm Off-Spin", f"{len(df_offspin)} rows")
-        
+       
         st.markdown("Typical columns found (may vary): Time, RPM, Revs, Speed, Spin Axis, etc.")
-    
-    # ── Left-Arm Unorthodox ──────────────────────────────────────────────────
+   
     with tab2:
         st.subheader("Left-Arm Unorthodox Spin")
         st.dataframe(df_unorthodox.head(8), use_container_width=True)
-        
+       
         if 'Time' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
             fig = px.line(df_unorthodox, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Left-Arm Unorthodox",
                           markers=True)
             st.plotly_chart(fig, use_container_width=True)
-        
-        # Add more plots depending on your actual columns
+       
         if 'Speed' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
             fig_scatter = px.scatter(df_unorthodox, x='Speed', y='RPM',
                                      title="Spin vs Speed – Left-Arm Unorthodox")
             st.plotly_chart(fig_scatter, use_container_width=True)
-    
-    # ── Right-Arm Leg-Spin ───────────────────────────────────────────────────
+   
     with tab3:
         st.subheader("Right-Arm Leg-Spin")
         st.dataframe(df_legspin.head(8), use_container_width=True)
-        
+       
         if 'Time' in df_legspin.columns and 'RPM' in df_legspin.columns:
             fig = px.line(df_legspin, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Leg-Spin",
                           markers=True)
             st.plotly_chart(fig, use_container_width=True)
-    
-    # ── Right-Arm Off-Spin ───────────────────────────────────────────────────
+   
     with tab4:
         st.subheader("Right-Arm Off-Spin")
         st.dataframe(df_offspin.head(8), use_container_width=True)
-        
+       
         if 'Time' in df_offspin.columns and 'RPM' in df_offspin.columns:
             fig = px.line(df_offspin, x='Time', y='RPM',
                           title="Spin Rate (RPM) over Time – Off-Spin",
