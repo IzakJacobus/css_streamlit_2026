@@ -84,7 +84,7 @@ elif menu == "Internships":
         """
         )
 
-            page_bg_img = f"""
+    page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
@@ -114,7 +114,7 @@ elif menu == "Learnership Program":
         """
         )
 
-            page_bg_img = f"""
+    page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
@@ -139,7 +139,7 @@ elif menu == "Contact":
     email = "izakjacobus@gmail.com"
     st.write(f"You can reach me at {email}.")
 
-        page_bg_img = f"""
+    page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
         background-image: url("{background_image_url}");
