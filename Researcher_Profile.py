@@ -111,7 +111,7 @@ elif menu == "Learnership Program":
     try:
         df_unorthodox = pd.read_csv("Left_Arm_Unorthodox.csv")
         df_legspin    = pd.read_csv("Leg_Spin.csv")
-        df_offspin    = pd.read_csv("Right_Arm_Off_spin.csv")   # Note: filename has underscore, not capital S
+        df_offspin    = pd.read_csv("Right_Arm_Off_Spin.csv")   # Note: filename has underscore, not capital S
         
         st.success("All three spin datasets loaded successfully!")
         
