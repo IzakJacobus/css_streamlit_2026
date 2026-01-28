@@ -104,34 +104,87 @@ elif menu == "Internships":
     st.markdown(page_bg_img, unsafe_allow_html=True) 
 
 elif menu == "Learnership Program":
-    st.title("Learnership Program")
-    st.sidebar.header("Data Selection")
+    st.title("Learnership Program – Cricket Ball Spin Dynamics")
     
-    box(
-        f"""
-        In 2025 I was part of a project where we looked at the dinamic spin of a cricket ball. We 
-        looked at three different types of spins: , and 
-        """
-        )
-
-    page_bg_img = f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background-image: url("{background_image_url}");
-        background-size: cover;          /* or contain / 100% 100% */
-        background-position: center;     /* centers the image */
-        background-repeat: no-repeat;
-        }}
-    [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0);       /* Makes top header transparent so image shows through */
-        }}
-    [data-testid="stToolbar"] {{
-        right: 2rem;                     /* Optional: moves menu button if it overlaps */
-        }}
-    </style>
-    """
-
-    st.markdown(page_bg_img, unsafe_allow_html=True) 
+    st.markdown("""
+    In 2025 I participated in a project investigating the **dynamic spin behaviour** of a cricket ball.  
+    We analysed three main delivery types:
+    - Left-arm unorthodox (e.g. chinaman / googly style)
+    - Right-arm wrist spin / leg-spin
+    - Right-arm finger spin / off-spin
+    """)
+    
+    # ── Load the three datasets ──────────────────────────────────────────────
+    try:
+        df_unorthodox = pd.read_csv("data/Left_Arm_Unorthodox.csv")
+        df_legspin    = pd.read_csv("data/Right_Spin.csv")
+        df_offspin    = pd.read_csv("data/Arm_Off_spin.csv")
+        
+        st.success("All three datasets loaded successfully!")
+        
+    except FileNotFoundError as e:
+        st.error(f"File not found: {e}")
+        st.info("Make sure the CSV files are in the 'data/' folder (or adjust the path in code).")
+        st.stop()   # Stop execution so rest doesn't crash
+    
+    # ── Show overview in tabs ────────────────────────────────────────────────
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "Overview", 
+        "Left-Arm Unorthodox", 
+        "Right-Arm Leg-Spin", 
+        "Right-Arm Off-Spin"
+    ])
+    
+    with tab1:
+        st.subheader("Quick Comparison")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Left-Arm Unorthodox", f"{len(df_unorthodox)} rows")
+        with col2:
+            st.metric("Right-Arm Leg-Spin", f"{len(df_legspin)} rows")
+        with col3:
+            st.metric("Right-Arm Off-Spin", f"{len(df_offspin)} rows")
+        
+        st.markdown("Typical columns found (may vary): Time, RPM, Revs, Speed, Spin Axis, etc.")
+    
+    # ── Left-Arm Unorthodox ──────────────────────────────────────────────────
+    with tab2:
+        st.subheader("Left-Arm Unorthodox Spin")
+        st.dataframe(df_unorthodox.head(8), use_container_width=True)
+        
+        if 'Time' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
+            fig = px.line(df_unorthodox, x='Time', y='RPM',
+                          title="Spin Rate (RPM) over Time – Left-Arm Unorthodox",
+                          markers=True)
+            st.plotly_chart(fig, use_container_width=True)
+        
+        # Add more plots depending on your actual columns
+        if 'Speed' in df_unorthodox.columns and 'RPM' in df_unorthodox.columns:
+            fig_scatter = px.scatter(df_unorthodox, x='Speed', y='RPM',
+                                     title="Spin vs Speed – Left-Arm Unorthodox")
+            st.plotly_chart(fig_scatter, use_container_width=True)
+    
+    # ── Right-Arm Leg-Spin ───────────────────────────────────────────────────
+    with tab3:
+        st.subheader("Right-Arm Leg-Spin")
+        st.dataframe(df_legspin.head(8), use_container_width=True)
+        
+        if 'Time' in df_legspin.columns and 'RPM' in df_legspin.columns:
+            fig = px.line(df_legspin, x='Time', y='RPM',
+                          title="Spin Rate (RPM) over Time – Leg-Spin",
+                          markers=True)
+            st.plotly_chart(fig, use_container_width=True)
+    
+    # ── Right-Arm Off-Spin ───────────────────────────────────────────────────
+    with tab4:
+        st.subheader("Right-Arm Off-Spin")
+        st.dataframe(df_offspin.head(8), use_container_width=True)
+        
+        if 'Time' in df_offspin.columns and 'RPM' in df_offspin.columns:
+            fig = px.line(df_offspin, x='Time', y='RPM',
+                          title="Spin Rate (RPM) over Time – Off-Spin",
+                          markers=True)
+            st.plotly_chart(fig, use_container_width=True)
 
 elif menu == "Contact":
     # Add a contact section
@@ -157,6 +210,3 @@ elif menu == "Contact":
     """
 
     st.markdown(page_bg_img, unsafe_allow_html=True) 
-
-
-
